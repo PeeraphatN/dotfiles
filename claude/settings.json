@@ -5,7 +5,7 @@
   "model": "sonnet",
   "statusLine": {
     "type": "command",
-    "command": "bash /home/peera/.claude/statusline-command.sh"
+    "command": "bash $HOME/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "andrej-karpathy-skills@karpathy-skills": true,
