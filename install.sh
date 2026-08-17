@@ -11,4 +11,9 @@ fi
 
 "$HOME/.tmux/plugins/tpm/bin/install_plugins"
 
+mkdir -p "$HOME/.claude"
+ln -sf "$DIR/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+ln -sf "$DIR/claude/settings.json" "$HOME/.claude/settings.json"
+ln -sf "$DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+
 echo "done. start tmux to load config."
