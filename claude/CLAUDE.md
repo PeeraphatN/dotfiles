@@ -43,3 +43,11 @@ pee-tone flowing Thai prose per the vault `CLAUDE.md`.
 
 **Shorten the prose, not the facts.** Concision never justifies dropping a real
 caveat, a failing test, or a step that got skipped.
+
+## Hiding AI files from git
+
+Applies to every project. When a repo uses git and has AI-related files that
+should never be committed (`.claude/`, `CLAUDE.md`, etc.), keep them out via
+`.git/info/exclude`, not `.gitignore`. `.gitignore` is itself a tracked file
+that ships with the repo; `.git/info/exclude` is local-only and never gets
+committed or pushed. Asked for on 2026-08-18.
