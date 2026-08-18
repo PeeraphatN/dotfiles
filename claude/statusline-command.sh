@@ -13,7 +13,8 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 printf '%s' "$input" | python3 -c '
-import getpass, json, os, sys
+import getpass, json, math, os, sys, time
+from datetime import datetime
 
 try:
     d = json.load(sys.stdin)
@@ -63,8 +64,9 @@ def git_branch(start):
             return None
         path = parent
 
-def meter(label, key, hue):
-    """label:[▓▓░░░░]NN%  — hue is a 256-color index for label + filled cells."""
+def meter(label, key, hue, left_unit=None):
+    """label:[▓▓░░░░]NN%(HH:MM)  — hue is a 256-color index for label + filled cells.
+    left_unit is (seconds_per_unit, suffix) e.g. (86400, "d") or (3600, "h")."""
     pct = dig("rate_limits", key, "used_percentage")
     if not isinstance(pct, (int, float)):
         return None
@@ -74,12 +76,30 @@ def meter(label, key, hue):
         cells = 1
     bar = (color(FILLED * cells, "38;5;{}".format(hue)) +
            color(EMPTY * (BAR_WIDTH - cells), "38;5;240"))
-    return "{}{}{}{}{}".format(
+    reset_str = ""
+    resets_at = dig("rate_limits", key, "resets_at")
+    if isinstance(resets_at, (int, float)):
+        try:
+            hhmm = datetime.fromtimestamp(resets_at).strftime("%H:%M")
+            prefix = ""
+            secs_left = max(0, resets_at - time.time())
+            if left_unit == "hm" or (left_unit and secs_left < 86400):
+                h_left, m_left = divmod(int(secs_left // 60), 60)
+                prefix = "{}h {}m ".format(h_left, m_left)
+            elif left_unit:
+                unit_secs, suffix = left_unit
+                units_left = math.ceil(secs_left / unit_secs)
+                prefix = "{}{} ".format(max(0, units_left), suffix)
+            reset_str = color("({}{})".format(prefix, hhmm), "38;5;{}".format(hue))
+        except (OSError, OverflowError, ValueError):
+            reset_str = ""
+    return "{}{}{}{}{}{}".format(
         color(label + ":", "38;5;{}".format(hue)),
         color("[", "38;5;240"),
         bar,
         color("]", "38;5;240"),
         color("{:.0f}%".format(pct), "38;5;{}".format(hue)),
+        reset_str,
     )
 
 parts = []
@@ -98,7 +118,7 @@ if model:
     parts.append(color(model, "1;37"))
 
 # --- Rate limits ---
-for text in (meter("5h", "five_hour", 215), meter("7d", "seven_day", 141)):
+for text in (meter("5h", "five_hour", 215, left_unit="hm"), meter("7d", "seven_day", 141, left_unit=(86400, "d"))):
     if text:
         parts.append(text)
 
