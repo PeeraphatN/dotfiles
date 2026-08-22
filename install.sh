@@ -7,6 +7,8 @@ git config --global user.name "PeeraphatN"
 git config --global user.email "contactpeeraphat.n@gmail.com"
 
 ln -sf "$DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+mkdir -p "$HOME/.tmux"
+ln -sf "$DIR/tmux/clipboard.sh" "$HOME/.tmux/clipboard.sh"
 
 if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
